@@ -1,9 +1,13 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { imageToBase64 } from "../../lib/gemini";
 
 export default function PreviewScreen() {
-  const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
+  const params = useLocalSearchParams();
+
+  const photoUri = Array.isArray(params.photoUri)
+    ? params.photoUri[0]
+    : params.photoUri;
 
   const handleAnalyze = async () => {
     try {
@@ -16,31 +20,26 @@ export default function PreviewScreen() {
         params: { base64Image: base64 },
       });
     } catch (e) {
-      console.log("Analyze error:", e);
+      console.log(e);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: photoUri }} style={styles.image} />
+    <View style={{ flex: 1 }}>
+      <Image source={{ uri: photoUri }} style={{ flex: 1 }} />
 
-      <TouchableOpacity style={styles.button} onPress={handleAnalyze}>
-        <Text style={styles.text}>Analyze</Text>
+      <TouchableOpacity
+        onPress={handleAnalyze}
+        style={{
+          position: "absolute",
+          bottom: 40,
+          alignSelf: "center",
+          backgroundColor: "#5B3FA3",
+          padding: 16,
+        }}
+      >
+        <Text style={{ color: "white" }}>Analyze</Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  image: { flex: 1, resizeMode: "contain" },
-  button: {
-    position: "absolute",
-    bottom: 50,
-    alignSelf: "center",
-    backgroundColor: "#5B3FA3",
-    padding: 16,
-    borderRadius: 10,
-  },
-  text: { color: "#fff", fontWeight: "bold" },
-});
