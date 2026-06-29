@@ -2,19 +2,12 @@
   "expo": {
     "name": "TaskFlow",
     "slug": "TaskFlow",
-    "version": "1.0.0",
-    "orientation": "portrait",
-
-    "plugins": ["expo-router", "expo-camera", "expo-splash-screen"],
-
-    "android": {
-      "permissions": ["CAMERA"]
-    },
-
-    "ios": {
-      "infoPlist": {
-        "NSCameraUsageDescription": "Camera access is required to take photos."
-      }
+    "scheme": "taskflow",
+    "extra": {
+      "supabaseUrl": "https://iwrfrfdulocngbbyhgfx.supabase.co",
+      "supabaseAnonKey": "YOUR_SUPABASE_ANON_KEY",
+      "geminiKey": "YOUR_GEMINI_KEY",
+      "roboflowKey": "YOUR_ROBOFLOW_KEY"
     }
   }
 }

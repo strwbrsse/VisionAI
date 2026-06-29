@@ -1,46 +1,63 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { imageToBase64 } from "../../lib/gemini";
 
 export default function PreviewScreen() {
   const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
+  const [loading, setLoading] = useState(false);
+
+  const uri = Array.isArray(photoUri) ? photoUri[0] : photoUri;
 
   const handleAnalyze = async () => {
     try {
-      if (!photoUri || Array.isArray(photoUri)) return;
+      if (!uri) return;
 
-      const base64 = await imageToBase64(photoUri);
+      setLoading(true);
+
+      const base64 = await imageToBase64(uri);
 
       router.push({
         pathname: "/result",
-        params: { base64Image: base64 },
+        params: { base64Image: base64 ?? "" },
       });
     } catch (e) {
-      console.log(e);
+      console.log("Analyze error:", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#000" }}>
-      {photoUri && !Array.isArray(photoUri) && (
-        <Image
-          source={{ uri: photoUri }}
-          style={{ flex: 1, resizeMode: "contain" }}
-        />
-      )}
+    <View style={styles.container}>
+      <Image source={{ uri }} style={styles.image} resizeMode="contain" />
 
-      <TouchableOpacity
-        onPress={handleAnalyze}
-        style={{
-          position: "absolute",
-          bottom: 50,
-          alignSelf: "center",
-          backgroundColor: "purple",
-          padding: 16,
-        }}
-      >
-        <Text style={{ color: "#fff" }}>Analyze</Text>
+      <TouchableOpacity style={styles.button} onPress={handleAnalyze}>
+        <Text style={styles.text}>{loading ? "Analyzing..." : "Analyze"}</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#000" },
+
+  image: {
+    flex: 1,
+    width: "100%",
+  },
+
+  button: {
+    position: "absolute",
+    bottom: 50,
+    alignSelf: "center",
+    backgroundColor: "#5B3FA3",
+    padding: 16,
+    borderRadius: 12,
+  },
+
+  text: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+});
