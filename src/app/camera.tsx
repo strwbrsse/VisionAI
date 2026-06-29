@@ -1,19 +1,20 @@
-import { useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
+import { useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function CameraScreen() {
-  const cameraRef = useRef<CameraView | null>(null);
+  const cameraRef = useRef<any>(null); // 🔥 FIX TYPE
   const [permission, requestPermission] = useCameraPermissions();
 
   if (!permission) return <View />;
+
   if (!permission.granted) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.center}>
         <Text>Camera permission required</Text>
         <TouchableOpacity onPress={requestPermission}>
-          <Text>Grant Permission</Text>
+          <Text style={styles.btn}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
     );
@@ -23,6 +24,7 @@ export default function CameraScreen() {
     try {
       const photo = await cameraRef.current?.takePictureAsync({
         quality: 0.7,
+        base64: true,
       });
 
       if (!photo?.uri) return;
@@ -32,7 +34,7 @@ export default function CameraScreen() {
         params: { photoUri: photo.uri },
       });
     } catch (e) {
-      console.log(e);
+      console.log("Capture error:", e);
     }
   };
 
@@ -40,19 +42,22 @@ export default function CameraScreen() {
     <View style={{ flex: 1 }}>
       <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back" />
 
-      <TouchableOpacity
-        onPress={takePicture}
-        style={{
-          position: "absolute",
-          bottom: 40,
-          alignSelf: "center",
-          backgroundColor: "black",
-          padding: 16,
-          borderRadius: 50,
-        }}
-      >
+      <TouchableOpacity style={styles.captureBtn} onPress={takePicture}>
         <Text style={{ color: "white" }}>Capture</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  captureBtn: {
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
+    backgroundColor: "#000",
+    padding: 16,
+    borderRadius: 50,
+  },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  btn: { color: "blue" },
+});
